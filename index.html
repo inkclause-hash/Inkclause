@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InkClause — Contracts Built for Freelancers</title>
+<meta name="description" content="Lawyer-reviewed freelance contracts in 60 seconds. Built for Upwork & Fiverr freelancers who got burned once and never again.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #f5f1e8;
+    --paper-dark: #ebe5d3;
+    --accent: #c8553d;
+    --accent-soft: #e8a598;
+    --gold: #b8935a;
+    --line: #2a2a2a;
+    --muted: #6b6b6b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Fraunces', serif;
+    font-optical-sizing: auto;
+    line-height: 1.5;
+  }
+  body {
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(184, 147, 90, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(200, 85, 61, 0.06) 0%, transparent 40%);
+  }
+
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 48px;
+    border-bottom: 1px solid rgba(26,26,26,0.1);
+  }
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 24px;
+    letter-spacing: -0.02em;
+    font-style: italic;
+  }
+  .logo::after {
+    content: "·";
+    color: var(--accent);
+    margin-left: 4px;
+    font-size: 32px;
+  }
+  .nav-cta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 18px;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: var(--accent); }
+
+  .hero {
+    padding: 80px 48px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    display: inline-block;
+    padding: 6px 12px;
+    border: 1px solid var(--accent);
+    border-radius: 2px;
+  }
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(48px, 7vw, 88px);
+    font-weight: 300;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 28px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    font-weight: 900;
+    color: var(--accent);
+  }
+  .hero p {
+    font-size: 19px;
+    color: var(--muted);
+    max-width: 480px;
+    margin-bottom: 36px;
+    line-height: 1.6;
+  }
+
+  /* EARLY ACCESS FORM */
+  .signup-form {
+    display: flex;
+    gap: 0;
+    max-width: 460px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .signup-form input {
+    flex: 1;
+    padding: 18px 20px;
+    border: 1px solid var(--ink);
+    border-right: none;
+    background: white;
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    color: var(--ink);
+    outline: none;
+  }
+  .signup-form input::placeholder { color: var(--muted); }
+  .signup-form button {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 18px 24px;
+    border: 1px solid var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .signup-form button:hover { background: var(--accent); border-color: var(--accent); }
+  .signup-meta {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .signup-success {
+    display: none;
+    background: var(--accent);
+    color: white;
+    padding: 18px 20px;
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    max-width: 460px;
+    border-radius: 2px;
+  }
+  .signup-success.show { display: block; }
+
+  .hero-visual {
+    position: relative;
+    height: 480px;
+  }
+  .doc-card {
+    position: absolute;
+    background: white;
+    width: 280px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.12);
+    padding: 24px;
+    border-radius: 2px;
+    font-family: 'Fraunces', serif;
+  }
+  .doc-1 { top: 20px; left: 0; transform: rotate(-6deg); z-index: 1; }
+  .doc-2 { top: 80px; left: 120px; transform: rotate(3deg); z-index: 2; background: var(--paper-dark); }
+  .doc-3 { top: 180px; left: 60px; transform: rotate(-2deg); z-index: 3; background: white; }
+  .doc-card .doc-header {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .doc-card .doc-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  .doc-card .doc-line {
+    height: 6px;
+    background: rgba(26,26,26,0.08);
+    margin: 8px 0;
+    border-radius: 2px;
+  }
+  .doc-card .doc-line.short { width: 60%; }
+  .doc-card .doc-line.med { width: 85%; }
+  .doc-card .doc-stamp {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 8px;
+    transform: rotate(-8deg);
+    letter-spacing: 0.1em;
+  }
+
+  .divider {
+    text-align: center;
+    padding: 40px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .divider::before, .divider::after {
+    content: "—————";
+    margin: 0 16px;
+    color: var(--gold);
+  }
+
+  /* PAIN POINTS */
+  .pain {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 48px 80px;
+    text-align: center;
+  }
+  .pain h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 48px;
+    font-weight: 300;
+    font-style: italic;
+    margin-bottom: 16px;
+    line-height: 1.1;
+  }
+  .pain h2 em { color: var(--accent); font-weight: 900; }
+  .pain > p {
+    color: var(--muted);
+    font-size: 18px;
+    max-width: 600px;
+    margin: 0 auto 60px;
+  }
+  .pain-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    text-align: left;
+  }
+  .pain-card {
+    background: white;
+    padding: 32px;
+    border-radius: 4px;
+    border-left: 3px solid var(--accent);
+  }
+  .pain-card .quote {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 18px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .pain-card .author {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* GENERATOR */
+  .generator {
+    max-width: 1100px;
+    margin: 40px auto 80px;
+    padding: 0 48px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+  }
+  .gen-form, .gen-preview {
+    background: white;
+    padding: 40px;
+    border: 1px solid rgba(26,26,26,0.08);
+    border-radius: 4px;
+  }
+  .gen-form h2, .gen-preview h2 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 28px;
+    font-weight: 400;
+    margin-bottom: 8px;
+  }
+  .gen-form .subtitle, .gen-preview .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .form-group { margin-bottom: 20px; }
+  .form-group label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid rgba(26,26,26,0.15);
+    background: var(--paper);
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    color: var(--ink);
+    border-radius: 2px;
+    transition: border 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .generate-btn {
+    width: 100%;
+    background: var(--accent);
+    color: white;
+    padding: 18px;
+    border: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: all 0.2s;
+  }
+  .generate-btn:hover { background: var(--ink); letter-spacing: 0.2em; }
+
+  .gen-preview { background: var(--paper); position: relative; overflow: hidden; }
+  .preview-doc {
+    background: white;
+    padding: 32px;
+    font-size: 13px;
+    line-height: 1.7;
+    min-height: 500px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    border-top: 4px solid var(--accent);
+  }
+  .preview-doc h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+  .preview-doc .doc-meta {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+  }
+  .preview-doc p { margin-bottom: 14px; }
+  .preview-doc strong {
+    background: rgba(200, 85, 61, 0.12);
+    padding: 1px 4px;
+    font-weight: 700;
+  }
+  .preview-doc .clause {
+    font-weight: 700;
+    margin-top: 18px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .signature-row { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 40px; }
+  .sig-block {
+    border-top: 1px solid var(--ink);
+    padding-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* FINAL CTA */
+  .final-cta {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 100px 48px;
+    text-align: center;
+  }
+  .final-cta h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 64px;
+    font-weight: 300;
+    font-style: italic;
+    margin-bottom: 16px;
+    line-height: 1;
+  }
+  .final-cta h2 em { color: var(--accent); font-weight: 900; }
+  .final-cta > p {
+    color: rgba(245,241,232,0.7);
+    margin-bottom: 40px;
+    font-size: 18px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .final-cta .signup-form {
+    margin: 0 auto;
+  }
+  .final-cta .signup-form input {
+    border-color: var(--paper);
+    background: transparent;
+    color: var(--paper);
+  }
+  .final-cta .signup-form input::placeholder { color: rgba(245,241,232,0.5); }
+  .final-cta .signup-form button {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .final-cta .signup-form button:hover { background: var(--paper); color: var(--ink); }
+  .perks {
+    margin-top: 32px;
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(245,241,232,0.6);
+    flex-wrap: wrap;
+  }
+  .perks span::before { content: "✓ "; color: var(--accent); }
+
+  footer {
+    padding: 40px 48px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    border-top: 1px solid rgba(26,26,26,0.1);
+  }
+
+  @media (max-width: 768px) {
+    .hero { grid-template-columns: 1fr; padding: 40px 24px; }
+    .hero-visual { height: 320px; margin-top: 20px; }
+    .generator { grid-template-columns: 1fr; padding: 0 24px; }
+    .pain-grid { grid-template-columns: 1fr; }
+    .pain { padding: 40px 24px 60px; }
+    .pain h2 { font-size: 36px; }
+    .final-cta { padding: 60px 24px; }
+    .final-cta h2 { font-size: 42px; }
+    .nav { padding: 20px 24px; }
+    .signup-form { flex-direction: column; box-shadow: none; }
+    .signup-form input { border-right: 1px solid var(--ink); }
+    .signup-form button { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="logo">InkClause</div>
+  <a href="#signup" class="nav-cta">Get Early Access</a>
+</nav>
+
+<section class="hero">
+  <div>
+    <span class="hero-tag">For Upwork & Fiverr Freelancers</span>
+    <h1>Contracts that <em>actually</em> protect you.</h1>
+    <p>Stop using sketchy templates from Google. Generate a lawyer-reviewed contract in 60 seconds — built for freelancers who got burned once and never again.</p>
+
+    <form class="signup-form" id="heroForm" onsubmit="handleSignup(event, 'hero')">
+      <input type="email" name="email" placeholder="your@email.com" required>
+      <button type="submit">Get Early Access</button>
+    </form>
+    <div class="signup-success" id="heroSuccess">
+      ✓ You're in. We'll email you when InkClause launches — early access pricing locked in.
+    </div>
+    <div class="signup-meta">Free during beta · No credit card · Launching soon</div>
+  </div>
+  <div class="hero-visual">
+    <div class="doc-card doc-1">
+      <div class="doc-header">Web Design · Contract</div>
+      <div class="doc-title">Service Agreement</div>
+      <div class="doc-line med"></div>
+      <div class="doc-line short"></div>
+      <div class="doc-line"></div>
+      <div class="doc-line med"></div>
+      <div class="doc-stamp">SIGNED</div>
+    </div>
+    <div class="doc-card doc-2">
+      <div class="doc-header">Development · NDA</div>
+      <div class="doc-title">Confidentiality</div>
+      <div class="doc-line"></div>
+      <div class="doc-line med"></div>
+      <div class="doc-line short"></div>
+    </div>
+    <div class="doc-card doc-3">
+      <div class="doc-header">Copywriting · Contract</div>
+      <div class="doc-title">Project Terms</div>
+      <div class="doc-line med"></div>
+      <div class="doc-line"></div>
+      <div class="doc-line short"></div>
+      <div class="doc-line med"></div>
+      <div class="doc-stamp">DRAFT</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider">Sound Familiar?</div>
+
+<section class="pain">
+  <h2>Every freelancer has a <em>"never again"</em> story.</h2>
+  <p>Late payments. Endless revisions. Clients who ghost. The fix isn't working harder — it's a contract that has your back from day one.</p>
+  <div class="pain-grid">
+    <div class="pain-card">
+      <div class="quote">"Client kept adding 'just one more thing.' I delivered 4x the original scope. Got paid for the original."</div>
+      <div class="author">— Web Designer · 3 years freelance</div>
+    </div>
+    <div class="pain-card">
+      <div class="quote">"They went silent after I delivered. Took 4 months to get paid. No late fees, no leverage."</div>
+      <div class="author">— Copywriter · Upwork</div>
+    </div>
+    <div class="pain-card">
+      <div class="quote">"Used a free template online. Turns out it was for the wrong country. Useless when things went south."</div>
+      <div class="author">— Developer · Fiverr</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider">See It In Action</div>
+
+<section class="generator">
+  <div class="gen-form">
+    <h2>Build your contract</h2>
+    <div class="subtitle">60 seconds · 5 fields</div>
+
+    <div class="form-group">
+      <label>Your service</label>
+      <select id="service">
+        <option value="Web Design">Web Design</option>
+        <option value="Web Development">Web Development</option>
+        <option value="Graphic Design">Graphic Design</option>
+        <option value="Copywriting">Copywriting</option>
+        <option value="Translation">Translation</option>
+        <option value="Video Editing">Video Editing</option>
+        <option value="Marketing">Marketing Consulting</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Your name</label>
+        <input type="text" id="freelancer" value="Jane Smith">
+      </div>
+      <div class="form-group">
+        <label>Client name</label>
+        <input type="text" id="client" value="Acme Corp">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Project description</label>
+      <textarea id="project" rows="2">Design a 5-page marketing website with custom illustrations</textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Total fee</label>
+        <input type="text" id="fee" value="$2,500">
+      </div>
+      <div class="form-group">
+        <label>Deadline</label>
+        <input type="text" id="deadline" value="Dec 31, 2026">
+      </div>
+    </div>
+
+    <button class="generate-btn" onclick="document.getElementById('signup').scrollIntoView({behavior:'smooth'})">Get My Contract →</button>
+  </div>
+
+  <div class="gen-preview">
+    <h2>Live preview</h2>
+    <div class="subtitle">Updates as you type</div>
+    <div class="preview-doc">
+      <h3>Freelance Service Agreement</h3>
+      <div class="doc-meta">InkClause · Contract #FA-2026</div>
+
+      <p>This Agreement is entered into between <strong id="p-freelancer">Jane Smith</strong> ("Freelancer") and <strong id="p-client">Acme Corp</strong> ("Client") for the purpose of <strong id="p-service">Web Design</strong> services.</p>
+
+      <div class="clause">1. Scope of Work</div>
+      <p>The Freelancer agrees to deliver: <strong id="p-project">Design a 5-page marketing website with custom illustrations</strong>. Any work outside this scope requires a written change order and additional fees.</p>
+
+      <div class="clause">2. Payment Terms</div>
+      <p>Total fee: <strong id="p-fee">$2,500</strong>. A 50% deposit is due before work begins. The remainder is due upon delivery. Late payments incur a 2% monthly fee.</p>
+
+      <div class="clause">3. Timeline</div>
+      <p>Final delivery by <strong id="p-deadline">Dec 31, 2026</strong>. Delays caused by Client extend the deadline accordingly.</p>
+
+      <div class="clause">4. Ownership</div>
+      <p>All deliverables remain property of the Freelancer until full payment is received.</p>
+
+      <div class="signature-row">
+        <div class="sig-block">Freelancer Signature</div>
+        <div class="sig-block">Client Signature</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta" id="signup">
+  <h2>Be first in line.</h2>
+  <p>Early access members get 50% off lifetime pricing. We're launching in a few weeks — drop your email to claim your spot.</p>
+
+  <form class="signup-form" id="finalForm" onsubmit="handleSignup(event, 'final')">
+    <input type="email" name="email" placeholder="your@email.com" required>
+    <button type="submit">Lock In 50% Off</button>
+  </form>
+  <div class="signup-success" id="finalSuccess" style="margin: 20px auto 0;">
+    ✓ You're in. We'll email you when InkClause launches.
+  </div>
+
+  <div class="perks">
+    <span>Lifetime 50% off</span>
+    <span>No spam, ever</span>
+    <span>Unsubscribe anytime</span>
+  </div>
+</section>
+
+<footer>
+  InkClause · Built for freelancers · 2026
+</footer>
+
+<script>
+  // Live preview
+  const fields = ['freelancer', 'client', 'service', 'project', 'fee', 'deadline'];
+  fields.forEach(f => {
+    const el = document.getElementById(f);
+    el.addEventListener('input', updatePreview);
+    el.addEventListener('change', updatePreview);
+  });
+
+  function updatePreview() {
+    fields.forEach(f => {
+      const val = document.getElementById(f).value || `[${f}]`;
+      const target = document.getElementById('p-' + f);
+      if (target) target.textContent = val;
+    });
+  }
+
+  // Signup handler — sends to Formspree (free email collection service)
+  // REPLACE 'YOUR_FORM_ID' with actual Formspree endpoint after signup
+  async function handleSignup(event, formType) {
+    event.preventDefault();
+    const form = event.target;
+    const email = form.querySelector('input[name="email"]').value;
+
+    try {
+      const response = await fetch('https://formspree.io/f/xyklrkqo', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, source: formType })
+      });
+
+      if (response.ok) {
+        form.style.display = 'none';
+        document.getElementById(formType + 'Success').classList.add('show');
+        document.getElementById(formType + 'Success').style.display = 'block';
+
+        // Track signup (Google Analytics)
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'signup', { source: formType });
+        }
+      } else {
+        alert('Something went wrong. Please try again.');
+      }
+    } catch (err) {
+      alert('Network error. Please try again.');
+    }
+  }
+</script>
+
+<!-- Google Analytics — REPLACE 'G-XXXXXXXXXX' with actual ID -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+
+</body>
+</html>

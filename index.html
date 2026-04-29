@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InkClause — Free Contract Generator for Freelancers</title>
+<meta name="description" content="Generate professional freelance contracts in 60 seconds. Free for Upwork, Fiverr, and independent freelancers worldwide.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #f5f1e8;
+    --paper-dark: #ebe5d3;
+    --accent: #c8553d;
+    --gold: #b8935a;
+    --muted: #6b6b6b;
+    --line: rgba(26,26,26,0.1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Fraunces', serif;
+    font-optical-sizing: auto;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+  body {
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(184, 147, 90, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(200, 85, 61, 0.06) 0%, transparent 40%);
+    min-height: 100vh;
+  }
+
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 48px;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    background: var(--paper);
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-weight: 900;
+    font-size: 24px;
+    letter-spacing: -0.02em;
+    font-style: italic;
+    cursor: pointer;
+  }
+  .logo::after { content: "."; color: var(--accent); }
+  .nav-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .hero {
+    text-align: center;
+    padding: 60px 24px 40px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: inline-block;
+    padding: 6px 14px;
+    border: 1px solid var(--accent);
+    border-radius: 2px;
+  }
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 20px;
+  }
+  .hero h1 em {
+    font-style: italic;
+    font-weight: 900;
+    color: var(--accent);
+  }
+  .hero p {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 540px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .app {
+    max-width: 1100px;
+    margin: 20px auto 60px;
+    padding: 0 24px;
+  }
+
+  .steps {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .step {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border: 1px solid var(--line);
+    background: white;
+    color: var(--muted);
+    border-radius: 2px;
+  }
+  .step.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .step.done { background: var(--accent); color: white; border-color: var(--accent); }
+
+  .panel {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 40px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+  }
+  .panel h2 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 32px;
+    font-weight: 400;
+    margin-bottom: 8px;
+    line-height: 1;
+  }
+  .panel-subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  .templates {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .template-card {
+    background: var(--paper);
+    border: 2px solid transparent;
+    padding: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+  }
+  .template-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .template-card.selected { border-color: var(--accent); background: rgba(200, 85, 61, 0.05); }
+  .template-card .icon {
+    width: 40px;
+    height: 40px;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+  .template-card.selected .icon { background: var(--accent); }
+  .template-card h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .template-card p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .form-group { margin-bottom: 20px; }
+  .form-group label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .form-group label .req { color: var(--accent); }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid rgba(26,26,26,0.15);
+    background: var(--paper);
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    color: var(--ink);
+    border-radius: 2px;
+    transition: border 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .form-group .hint {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .btn-row { display: flex; gap: 12px; margin-top: 32px; }
+  .btn {
+    padding: 16px 28px;
+    border: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+  .btn-primary { background: var(--ink); color: var(--paper); flex: 1; }
+  .btn-primary:hover { background: var(--accent); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--ink);
+  }
+  .btn-secondary:hover { background: var(--ink); color: var(--paper); }
+
+  .preview-container {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 32px;
+  }
+  .preview-doc {
+    background: white;
+    padding: 40px;
+    font-size: 12px;
+    line-height: 1.7;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    border-top: 4px solid var(--accent);
+    max-height: 700px;
+    overflow-y: auto;
+    border-radius: 2px;
+  }
+  .preview-doc h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+  .preview-doc .doc-meta {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+  }
+  .preview-doc p { margin-bottom: 12px; }
+  .preview-doc strong {
+    background: rgba(200, 85, 61, 0.1);
+    padding: 1px 4px;
+    font-weight: 700;
+  }
+  .preview-doc .clause {
+    font-weight: 700;
+    margin-top: 18px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .signature-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+  }
+  .sig-block {
+    border-top: 1px solid var(--ink);
+    padding-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .email-capture { text-align: center; }
+  .email-capture .icon-big {
+    width: 80px;
+    height: 80px;
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 900;
+    font-size: 36px;
+    margin: 0 auto 24px;
+    position: relative;
+  }
+  .email-capture .icon-big::after {
+    content: "";
+    position: absolute;
+    bottom: 12px;
+    left: calc(50% + 4px);
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+  .email-capture h2 { margin-bottom: 12px; }
+  .email-capture .info {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 480px;
+    margin: 0 auto 32px;
+    line-height: 1.5;
+  }
+  .email-form { max-width: 460px; margin: 0 auto; }
+  .email-form .form-group { text-align: left; }
+
+  .success-screen { text-align: center; padding: 40px 0; }
+  .success-screen .check-circle {
+    width: 80px;
+    height: 80px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin: 0 auto 24px;
+    font-family: 'Fraunces', serif;
+  }
+  .success-screen h2 { margin-bottom: 12px; }
+  .success-screen p {
+    color: var(--muted);
+    margin-bottom: 32px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .download-btn {
+    background: var(--accent);
+    color: white;
+    padding: 18px 36px;
+    border: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 2px;
+  }
+  .download-btn:hover { background: var(--ink); transform: translateY(-2px); }
+
+  .disclaimer {
+    background: var(--paper-dark);
+    border-left: 3px solid var(--gold);
+    padding: 16px 20px;
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    text-align: left;
+  }
+  .disclaimer strong { color: var(--ink); }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  footer {
+    padding: 40px 24px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    border-top: 1px solid var(--line);
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 768px) {
+    .nav { padding: 16px 20px; }
+    .nav-meta { display: none; }
+    .hero { padding: 40px 20px 24px; }
+    .app { padding: 0 16px; margin-top: 12px; }
+    .panel { padding: 24px 20px; }
+    .panel h2 { font-size: 24px; }
+    .preview-container { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .btn-row { flex-direction: column; }
+    .btn { width: 100%; }
+    .templates { grid-template-columns: 1fr; }
+    .steps { gap: 4px; }
+    .step { font-size: 9px; padding: 6px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="logo" onclick="resetApp()">InkClause</div>
+  <div class="nav-meta">Free during beta</div>
+</nav>
+
+<section class="hero">
+  <span class="hero-tag">For Upwork & Fiverr Freelancers</span>
+  <h1>Generate a contract in <em>60 seconds</em>.</h1>
+  <p>Five battle-tested templates. A few fields. One PDF that actually protects you.</p>
+</section>
+
+<div class="app">
+
+  <div class="steps">
+    <div class="step active" id="step-1">— 01 — Choose Template</div>
+    <div class="step" id="step-2">— 02 — Fill Details</div>
+    <div class="step" id="step-3">— 03 — Get PDF</div>
+  </div>
+
+  <div class="section active" id="section-templates">
+    <div class="panel">
+      <h2>Pick your contract type</h2>
+      <div class="panel-subtitle">— 01 / 03 —</div>
+
+      <div class="templates" id="templates-grid"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btn-to-form" disabled onclick="goToForm()">Continue →</button>
+      </div>
+
+      <div class="disclaimer">
+        <strong>Note:</strong> InkClause provides professionally drafted contract templates as a starting point. These are not legal advice. For high-value or complex projects, consult a licensed attorney in your jurisdiction.
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="section-form">
+    <div class="panel">
+      <h2>Fill in the details</h2>
+      <div class="panel-subtitle">— 02 / 03 — <span id="selected-template-name"></span></div>
+
+      <div class="preview-container">
+        <div>
+          <div class="form-group">
+            <label>Your full name <span class="req">*</span></label>
+            <input type="text" id="freelancer" placeholder="Jane Smith" oninput="updatePreview()">
+          </div>
+
+          <div class="form-group">
+            <label>Your country / state <span class="req">*</span></label>
+            <input type="text" id="freelancer_location" placeholder="California, USA" oninput="updatePreview()">
+            <div class="hint">Used for governing law clause</div>
+          </div>
+
+          <div class="form-group">
+            <label>Client name (or company) <span class="req">*</span></label>
+            <input type="text" id="client" placeholder="Acme Corporation" oninput="updatePreview()">
+          </div>
+
+          <div class="form-group">
+            <label>Project description <span class="req">*</span></label>
+            <textarea id="project" rows="3" placeholder="Brief description of what you're delivering" oninput="updatePreview()"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Total fee <span class="req">*</span></label>
+              <input type="text" id="fee" placeholder="$2,500" oninput="updatePreview()">
+            </div>
+            <div class="form-group">
+              <label>Currency</label>
+              <select id="currency" onchange="updatePreview()">
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="CAD">CAD</option>
+                <option value="AUD">AUD</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Deposit %</label>
+              <input type="text" id="deposit" placeholder="50" value="50" oninput="updatePreview()">
+              <div class="hint">Recommended: 30-50%</div>
+            </div>
+            <div class="form-group">
+              <label>Deadline <span class="req">*</span></label>
+              <input type="text" id="deadline" placeholder="Dec 31, 2026" oninput="updatePreview()">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Revisions included</label>
+              <input type="text" id="revisions" placeholder="2" value="2" oninput="updatePreview()">
+            </div>
+            <div class="form-group">
+              <label>Late fee % / month</label>
+              <input type="text" id="late_fee" placeholder="2" value="2" oninput="updatePreview()">
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="preview-doc" id="preview-output"></div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goToTemplates()">← Back</button>
+        <button class="btn btn-primary" onclick="goToEmail()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="section-email">
+    <div class="panel email-capture">
+      <div class="icon-big">IC</div>
+      <h2>Where should we send it?</h2>
+      <div class="panel-subtitle">— 03 / 03 — Final step</div>
+      <p class="info">Drop your email and get your contract as a PDF — instantly, free, no credit card required.</p>
+
+      <form class="email-form" onsubmit="submitEmail(event)">
+        <div class="form-group">
+          <label>Your email <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="you@example.com" required>
+          <div class="hint">We'll save your contract here. We won't spam you.</div>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn btn-secondary" onclick="goToForm()">← Back</button>
+          <button type="submit" class="btn btn-primary">Generate My Contract →</button>
+        </div>
+      </form>
+
+      <div class="disclaimer">
+        <strong>Privacy:</strong> Your email is used to keep your contract on record and send occasional product updates. Unsubscribe anytime.
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="section-success">
+    <div class="panel success-screen">
+      <div class="check-circle">✓</div>
+      <h2>Your contract is ready</h2>
+      <p>Click below to download your PDF. Both you and your client should sign and date it — digital signatures via Adobe Reader or DocuSign work great.</p>
+      <button class="download-btn" onclick="downloadPDF()">Download PDF →</button>
+
+      <div style="margin-top: 40px;">
+        <button class="btn btn-secondary" onclick="resetApp()">Generate Another Contract</button>
+      </div>
+
+      <div class="disclaimer" style="margin-top: 32px;">
+        <strong>Pro tip:</strong> Send the signed PDF back to your client and keep a copy for your records. If your client wants changes, send the request in writing — that itself becomes part of the contract record.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  InkClause · Built for freelancers · 2026 · <a href="mailto:inkclause@gmail.com">Contact</a>
+</footer>
+
+<script>
+  const TEMPLATES = {
+    'general': {
+      name: 'General Service Agreement',
+      desc: 'Universal contract for any freelance service',
+      icon: 'G',
+      title: 'Freelance Service Agreement',
+      clauses: ['scope', 'payment', 'timeline', 'ownership', 'revisions', 'cancellation', 'liability', 'governing']
+    },
+    'development': {
+      name: 'Web/App Development',
+      desc: 'Code, websites, mobile apps, software',
+      icon: 'D',
+      title: 'Software Development Agreement',
+      clauses: ['scope', 'payment', 'timeline', 'ownership_dev', 'revisions', 'maintenance', 'cancellation', 'liability', 'governing']
+    },
+    'design': {
+      name: 'Design Services',
+      desc: 'Web design, graphic design, branding, logos',
+      icon: 'D',
+      title: 'Design Services Agreement',
+      clauses: ['scope', 'payment', 'timeline', 'ownership_design', 'revisions', 'usage', 'cancellation', 'liability', 'governing']
+    },
+    'writing': {
+      name: 'Writing & Copywriting',
+      desc: 'Articles, copy, content, ghostwriting',
+      icon: 'W',
+      title: 'Writing Services Agreement',
+      clauses: ['scope', 'payment', 'timeline', 'ownership_writing', 'revisions', 'attribution', 'cancellation', 'liability', 'governing']
+    },
+    'translation': {
+      name: 'Translation',
+      desc: 'Document translation, localization',
+      icon: 'T',
+      title: 'Translation Services Agreement',
+      clauses: ['scope', 'payment', 'timeline', 'ownership_translation', 'revisions', 'confidentiality', 'cancellation', 'liability', 'governing']
+    }
+  };
+
+  let state = { template: null, data: {}, currency: 'USD', submitted: false };
+
+  function init() {
+    const grid = document.getElementById('templates-grid');
+    Object.keys(TEMPLATES).forEach(key => {
+      const t = TEMPLATES[key];
+      const card = document.createElement('div');
+      card.className = 'template-card';
+      card.dataset.template = key;
+      card.onclick = () => selectTemplate(key);
+      card.innerHTML = `
+        <div class="icon">${t.icon}</div>
+        <h3>${t.name}</h3>
+        <p>${t.desc}</p>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function selectTemplate(key) {
+    state.template = key;
+    document.querySelectorAll('.template-card').forEach(c => {
+      c.classList.toggle('selected', c.dataset.template === key);
+    });
+    document.getElementById('btn-to-form').disabled = false;
+  }
+
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function setStep(num) {
+    [1,2,3].forEach(n => {
+      const el = document.getElementById('step-' + n);
+      el.classList.remove('active', 'done');
+      if (n < num) el.classList.add('done');
+      if (n === num) el.classList.add('active');
+    });
+  }
+
+  function goToTemplates() { showSection('section-templates'); setStep(1); }
+
+  function goToForm() {
+    if (!state.template) return;
+    document.getElementById('selected-template-name').textContent = TEMPLATES[state.template].name;
+    showSection('section-form');
+    setStep(2);
+    updatePreview();
+  }
+
+  function goToEmail() {
+    const required = ['freelancer', 'freelancer_location', 'client', 'project', 'fee', 'deadline'];
+    for (const id of required) {
+      if (!document.getElementById(id).value.trim()) {
+        alert('Please fill in all required fields (marked with *).');
+        document.getElementById(id).focus();
+        return;
+      }
+    }
+    saveFormData();
+    showSection('section-email');
+    setStep(3);
+  }
+
+  function resetApp() {
+    state = { template: null, data: {}, currency: 'USD', submitted: false };
+    document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('btn-to-form').disabled = true;
+    ['freelancer','freelancer_location','client','project','fee','deadline','email'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    showSection('section-templates');
+    setStep(1);
+  }
+
+  function saveFormData() {
+    state.currency = document.getElementById('currency').value;
+    state.data = {
+      freelancer: document.getElementById('freelancer').value,
+      freelancer_location: document.getElementById('freelancer_location').value,
+      client: document.getElementById('client').value,
+      project: document.getElementById('project').value,
+      fee: document.getElementById('fee').value,
+      deposit: document.getElementById('deposit').value || '50',
+      deadline: document.getElementById('deadline').value,
+      revisions: document.getElementById('revisions').value || '2',
+      late_fee: document.getElementById('late_fee').value || '2',
+      currency: state.currency,
+      date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    };
+  }
+
+  const CLAUSES = {
+    scope: (d) => ({
+      title: 'Scope of Work',
+      body: `The Freelancer agrees to deliver the following services: <strong>${d.project || '[project description]'}</strong>. Any work outside this defined scope ("scope creep") requires a written change order signed by both parties and may incur additional fees at the Freelancer's standard hourly rate.`
+    }),
+    payment: (d) => ({
+      title: 'Payment Terms',
+      body: `The total fee for the services is <strong>${d.fee || '[fee]'} ${d.currency}</strong>. A non-refundable deposit of <strong>${d.deposit}%</strong> is due upon signing this Agreement and before any work begins. The remaining balance is due upon final delivery of the work. Payments are considered late if not received within 14 days of the invoice date. Late payments accrue interest at <strong>${d.late_fee}% per month</strong>, compounded monthly.`
+    }),
+    timeline: (d) => ({
+      title: 'Timeline & Deadlines',
+      body: `The Freelancer will deliver the final work by <strong>${d.deadline || '[deadline]'}</strong>. This timeline assumes timely client cooperation, including but not limited to the provision of necessary materials, feedback within 5 business days of request, and timely payment of the deposit. Any delays caused by the Client shall extend the deadline accordingly.`
+    }),
+    ownership: (d) => ({
+      title: 'Ownership & Intellectual Property',
+      body: `All work product, deliverables, and intellectual property created under this Agreement remain the sole property of the Freelancer until full payment is received. Upon receipt of full payment, the Freelancer transfers all relevant rights and ownership to the Client. The Freelancer retains the right to display the work in their portfolio unless otherwise agreed in writing.`
+    }),
+    ownership_dev: (d) => ({
+      title: 'Ownership & Source Code',
+      body: `All source code, documentation, and deliverables remain the property of the Freelancer until full payment is received. Upon final payment, the Client receives full ownership and a perpetual, worldwide license to use, modify, and distribute the deliverables. The Freelancer retains the right to reuse generic code components, libraries, and frameworks not specific to this project. Pre-existing tools and libraries owned by the Freelancer remain their property.`
+    }),
+    ownership_design: (d) => ({
+      title: 'Ownership & Design Rights',
+      body: `All preliminary concepts, drafts, and unselected design variations remain the property of the Freelancer. The Client receives full ownership of the final selected design upon receipt of full payment. The Freelancer retains the right to display the final work in their portfolio and on social media. The Client may not use, distribute, or modify any preliminary concepts or drafts without written permission.`
+    }),
+    ownership_writing: (d) => ({
+      title: 'Ownership & Copyright',
+      body: `The Freelancer retains all copyright and ownership of the writing until full payment is received. Upon final payment, all rights transfer to the Client. The Client agrees to credit the Freelancer as the author when the work is published unless this is a ghostwriting arrangement specified in the Scope of Work. The Freelancer may include excerpts in their portfolio, with the Client's name redacted if requested.`
+    }),
+    ownership_translation: (d) => ({
+      title: 'Ownership & Translation Rights',
+      body: `The translated content becomes the property of the Client upon full payment. The Freelancer retains no ownership of the translated material but may reference the project type and language pair in their portfolio (without disclosing client-confidential content). All source materials provided by the Client remain the Client's property.`
+    }),
+    revisions: (d) => ({
+      title: 'Revisions',
+      body: `The Freelancer will provide <strong>${d.revisions}</strong> rounds of revisions as part of the agreed fee. Each revision request must be submitted in writing within 7 days of receiving the initial draft. Additional revisions beyond the included rounds will be billed at the Freelancer's standard hourly rate, payable in advance.`
+    }),
+    cancellation: (d) => ({
+      title: 'Cancellation & Kill Fee',
+      body: `If the Client cancels the project after work has begun, the deposit is non-refundable and the Client is liable for payment proportional to the work completed at the time of cancellation, with a minimum of 50% of the total fee. If the Freelancer cancels for any reason other than non-payment by the Client, the deposit will be refunded in full.`
+    }),
+    liability: (d) => ({
+      title: 'Limitation of Liability',
+      body: `The Freelancer's total liability under this Agreement, regardless of cause, shall not exceed the total fee paid by the Client. The Freelancer shall not be liable for any indirect, consequential, or incidental damages, including but not limited to lost profits, lost data, or business interruption.`
+    }),
+    governing: (d) => ({
+      title: 'Governing Law',
+      body: `This Agreement shall be governed by and construed in accordance with the laws of <strong>${d.freelancer_location || '[freelancer location]'}</strong>, without regard to its conflict of law principles. Any disputes shall first be addressed through good-faith negotiation, and if unresolved, through mediation before any litigation is pursued.`
+    }),
+    maintenance: (d) => ({
+      title: 'Post-Delivery Support',
+      body: `The Freelancer will provide 14 days of post-delivery bug fix support at no additional cost, covering issues directly related to the original deliverables. This does not include new features, content updates, or issues caused by third-party services or Client modifications. Extended maintenance is available under a separate agreement.`
+    }),
+    usage: (d) => ({
+      title: 'Usage Rights',
+      body: `Upon full payment, the Client may use the final design in any commercial or non-commercial context related to their business. The Client may not resell, sublicense, or redistribute the design as a standalone product. Any third-party use (such as licensing the design to another business) requires the Freelancer's written consent.`
+    }),
+    attribution: (d) => ({
+      title: 'Attribution',
+      body: `Unless this is a ghostwriting arrangement explicitly noted in the Scope of Work, the Freelancer will be credited as the author whenever the work is published. The Client may not claim authorship or modify the work in ways that misrepresent the original intent without the Freelancer's written consent.`
+    }),
+    confidentiality: (d) => ({
+      title: 'Confidentiality',
+      body: `Both parties agree to maintain the confidentiality of any non-public information shared during this engagement, including business plans, financial information, source documents, and translated materials. Confidentiality obligations continue for 2 years beyond the termination of this Agreement.`
+    })
+  };
+
+  function updatePreview() {
+    if (!state.template) return;
+    saveFormData();
+    const t = TEMPLATES[state.template];
+    const out = document.getElementById('preview-output');
+    let html = `
+      <h3>${t.title}</h3>
+      <div class="doc-meta">InkClause · ${state.data.date}</div>
+      <p>This Agreement ("Agreement") is entered into as of <strong>${state.data.date}</strong> between <strong>${state.data.freelancer || '[Your Name]'}</strong> ("Freelancer"), located in <strong>${state.data.freelancer_location || '[Your Location]'}</strong>, and <strong>${state.data.client || '[Client Name]'}</strong> ("Client").</p>
+    `;
+    t.clauses.forEach((key, i) => {
+      const clause = CLAUSES[key](state.data);
+      html += `<div class="clause">${i + 1}. ${clause.title}</div><p>${clause.body}</p>`;
+    });
+    html += `
+      <div class="signature-row">
+        <div class="sig-block">Freelancer Signature & Date</div>
+        <div class="sig-block">Client Signature & Date</div>
+      </div>
+    `;
+    out.innerHTML = html;
+  }
+
+  async function submitEmail(event) {
+    event.preventDefault();
+    const email = document.getElementById('email').value;
+    const btn = event.target.querySelector('button[type="submit"]');
+    btn.textContent = 'Generating...';
+    btn.disabled = true;
+
+    state.data.email = email;
+
+    // Send to Brevo using their form endpoint
+    try {
+      const formData = new FormData();
+      formData.append('EMAIL', email);
+      formData.append('email_address_check', '');
+      formData.append('locale', 'en');
+      formData.append('html_type', 'simple');
+
+      await fetch('https://dc1e8c4e.sibforms.com/serve/MUIFAPrb9kUvRMG3n61kbOs5Ue97kUQ1BtEbkXNsSifGzIcZfoTibBSaF28w-f_KW9jA5LLH0AL-Y0EOecVhFQghAbqalBTIxFBPRThM4VRcjqZTz9E-SFt14spj8neMRCYcWsQxD28csVjay5rn4aFMEyChNUGy7TEr7JSm0iXFTBr4nLTj7njIB9Z44DDf4YWXH8xuobX_AVdegQ==', {
+        method: 'POST',
+        mode: 'no-cors',
+        body: formData
+      });
+      state.submitted = true;
+    } catch (err) {
+      console.error('Brevo error:', err);
+    }
+
+    showSection('section-success');
+  }
+
+  function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+    const t = TEMPLATES[state.template];
+    const d = state.data;
+
+    const pageWidth = doc.internal.pageSize.width;
+    const margin = 60;
+    const maxWidth = pageWidth - margin * 2;
+    let y = 60;
+
+    doc.setFont('times', 'bold');
+    doc.setFontSize(20);
+    doc.text(t.title, pageWidth / 2, y, { align: 'center' });
+    y += 24;
+
+    doc.setFont('times', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(120, 120, 120);
+    doc.text('InkClause · ' + d.date, pageWidth / 2, y, { align: 'center' });
+    y += 24;
+
+    doc.setDrawColor(200, 85, 61);
+    doc.setLineWidth(1.5);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 20;
+
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(11);
+    const intro = `This Agreement ("Agreement") is entered into as of ${d.date} between ${d.freelancer} ("Freelancer"), located in ${d.freelancer_location}, and ${d.client} ("Client").`;
+    const introLines = doc.splitTextToSize(intro, maxWidth);
+    doc.text(introLines, margin, y);
+    y += introLines.length * 14 + 12;
+
+    t.clauses.forEach((key, i) => {
+      const clause = CLAUSES[key](d);
+      const cleanBody = clause.body.replace(/<\/?strong>/g, '');
+
+      if (y > 700) {
+        doc.addPage();
+        y = 60;
+      }
+
+      doc.setFont('times', 'bold');
+      doc.setFontSize(11);
+      doc.text(`${i + 1}. ${clause.title}`, margin, y);
+      y += 14;
+
+      doc.setFont('times', 'normal');
+      doc.setFontSize(10);
+      const bodyLines = doc.splitTextToSize(cleanBody, maxWidth);
+
+      if (y + bodyLines.length * 13 > 740) {
+        doc.addPage();
+        y = 60;
+      }
+
+      doc.text(bodyLines, margin, y);
+      y += bodyLines.length * 13 + 10;
+    });
+
+    if (y > 640) {
+      doc.addPage();
+      y = 60;
+    }
+    y += 30;
+    const colWidth = (maxWidth - 30) / 2;
+
+    doc.setDrawColor(30, 30, 30);
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, margin + colWidth, y);
+    doc.line(margin + colWidth + 30, y, margin + colWidth * 2 + 30, y);
+    y += 12;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(120, 120, 120);
+    doc.text('Freelancer Signature & Date', margin, y);
+    doc.text('Client Signature & Date', margin + colWidth + 30, y);
+
+    y += 18;
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(10);
+    doc.setFont('times', 'normal');
+    doc.text(d.freelancer, margin, y);
+    doc.text(d.client, margin + colWidth + 30, y);
+
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text('Generated by InkClause · inkclause.com · Page ' + i + ' of ' + pageCount, pageWidth / 2, doc.internal.pageSize.height - 30, { align: 'center' });
+    }
+
+    const filename = `InkClause-${t.name.replace(/\s+/g, '-')}-${d.client.replace(/\s+/g, '-')}.pdf`;
+    doc.save(filename);
+  }
+
+  init();
+</script>
+
+</body>
+</html>
